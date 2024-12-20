@@ -1,0 +1,58 @@
+services:
+  oval.masstransitlearning.api:
+    image: ${DOCKER_REGISTRY-}ovalmasstransitlearningapi
+    build:
+      context: .
+      dockerfile: Oval.MassTransitLearning.API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - Mongo__ConnectionString=mongodb://mongo
+      - Mongo__DatabaseName=testing
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__User=user
+      - RabbitMQ__Pass=bitnami
+    ports:
+      - "8080"
+      - "8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    depends_on:
+      - rabbitmq
+      - mongo
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: bitnami/rabbitmq:4.0-debian-12
+    environment:
+      - RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS=true
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
+    ports:
+      - "5671"
+      - "5672"
+      - "4369"
+      - "15691"
+      - "15692"
+      - "15672"
+
+  mongo:
+    container_name: mongo
+    image: bitnami/mongodb:7.0.6-debian-12-r0
+    ports:
+      - "27017:27017"
+    volumes:
+      - 'db_data:/data/db'
+      - 'db_config:/data/configdb'
+
+volumes:
+  db_data:
+    driver: local
+  db_config:
+    driver: local

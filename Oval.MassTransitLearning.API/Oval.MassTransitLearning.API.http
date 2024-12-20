@@ -1,0 +1,6 @@
+@Oval.MassTransitLearning.API_HostAddress = http://localhost:5193
+
+POST {{Oval.MassTransitLearning.API_HostAddress}}/create/
+Accept: application/json
+
+###
