@@ -7,7 +7,7 @@
     <ProjectGuid>8048e03a-0a12-4a5a-969a-de2d8003c60e</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/weatherforecast</DockerServiceUrl>
-    <DockerServiceName>oval.masstransitlearning.api</DockerServiceName>
+    <DockerServiceName>masstransitlearning.api</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.yml" />
