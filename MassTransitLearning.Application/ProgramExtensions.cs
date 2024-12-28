@@ -31,10 +31,10 @@ namespace MassTransitLearning.Application
                         h.Password("bitnami");
                     });
                     cfg.ConfigureEndpoints(ctx);
-                    cfg.UseMessageRetry(r => {
-                        r.Interval(5, 1000);
-                        r.Ignore(typeof(PlayerUnavailableException));
-                    });
+                    // cfg.UseMessageRetry(r => {
+                    //     r.Interval(5, 1000);
+                    //     r.Ignore(typeof(PlayerUnavailableException));
+                    // });
                 });
             });
         }
