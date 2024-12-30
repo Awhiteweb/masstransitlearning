@@ -12,7 +12,7 @@ namespace MassTransitLearning.Application
             var assemblies = new Assembly[] { typeof(ProgramExtensions).Assembly };
             services.AddMassTransit(config =>
             {
-                config.AddSagaStateMachine<MatchBookingStateMachine, MatchBookingState>()
+                config.AddSagaStateMachine<MatchBookingStateMachine, MatchBookingState>(typeof(MatchBookingStateSagaDefinition))
                     .MongoDbRepository(r =>
                     {
                         r.Connection = "mongodb://root:password@mongo/";
