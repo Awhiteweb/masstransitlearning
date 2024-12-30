@@ -10,7 +10,7 @@ namespace MassTransitLearning.Application.Consumers
         {
             logger.LogInformation("Sending notification {MESSAGE}", context.Message.Message);
             var wait = (int)Math.Round(1000 * Random.Shared.NextSingle());
-            await Task.Delay( wait );
+            await Task.Delay(wait);
             logger.LogInformation("Sent notification {MESSAGE}", context.Message.Message);
         }
     }
