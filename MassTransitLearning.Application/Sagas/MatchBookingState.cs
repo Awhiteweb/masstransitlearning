@@ -37,7 +37,7 @@ namespace MassTransitLearning.Application.Sagas
         const int ConcurrencyLimit = 5;
         public MatchBookingStateSagaDefinition()
         {
-            Endpoint(e => e.ConcurrentMessageLimit = 5);
+            Endpoint(e => e.ConcurrentMessageLimit = ConcurrencyLimit);
         }
 
         protected override void ConfigureSaga(IReceiveEndpointConfigurator endpointConfigurator, ISagaConfigurator<MatchBookingState> sagaConfigurator, IRegistrationContext context)
