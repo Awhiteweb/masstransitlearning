@@ -41,6 +41,12 @@ namespace MassTransitLearning.Application.Events
     {
         public Guid CorrelationId { get; init; }
     }
+    public class PlayerConfirmation : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+        public required string Player { get; init; }
+        public bool Available { get; init; }
+    }
     public class PlayerResponse : CorrelatedBy<Guid>
     {
         public Guid CorrelationId { get; init; }

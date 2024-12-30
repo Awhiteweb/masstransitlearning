@@ -21,6 +21,7 @@ namespace MassTransitLearning.Application.Sagas
         public Event<PlayerThreeResponse>? PlayerThreeResponse { get; private set; }
         public Event<PlayerFourResponse>? PlayerFourResponse { get; private set; }
         public Event<PlayerFiveResponse>? PlayerFiveResponse { get; private set; }
+        public Event<PlayerConfirmation>? PlayerConfirmation { get; private set; }
         public Event<PlayerResponse>? PlayerResponse { get; private set; }
         public Event<Fault<PlayerRequest>>? PlayerRequestFault { get; private set; }
 
@@ -57,6 +58,7 @@ namespace MassTransitLearning.Application.Sagas
                 When(PlayerThreeResponse).ConfirmPlayer("Player Three"),
                 When(PlayerFourResponse).ConfirmPlayer("Player Four"),
                 When(PlayerFiveResponse).ConfirmPlayer("Player Five"),
+                When(PlayerConfirmation).UpdatePlayerState(logger),
                 When(PlayerResponse)
                     .If(
                         context => context.Saga.HaveAllPlayersResponded,
@@ -80,24 +82,31 @@ namespace MassTransitLearning.Application.Sagas
 
             DuringAny(
                 When(PlayerRequestFault)
-                    .Then(context => context.Saga.SetPlayerStatus(context.Message.GetPlayerUnavailableException().Player, false))
-                    .PublishAsync(context => context.Init<TeamNotification>(new
+                    .PublishAsync(context => context.Init<PlayerConfirmation>(new
                     {
                         context.Saga.CorrelationId,
-                        Message = "A player is unavailable"
-                    }))
-                    .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId})));
+                        context.Message.GetPlayerUnavailableException().Player,
+                        Available = false
+                    })));
         }
     }
 
     public static class SagaExtensions
     {
         public static EventActivityBinder<MatchBookingState, TEvent> ConfirmPlayer<TEvent>(this EventActivityBinder<MatchBookingState, TEvent> binder, string player) where TEvent : class =>
-            binder.Then(context => context.Saga.SetPlayerStatus(player, true))
+            binder.PublishAsync(context => context.Init<PlayerConfirmation>(new 
+            {
+                context.Saga.CorrelationId,
+                Player = player,
+                Available = true
+            }));
+        public static EventActivityBinder<MatchBookingState, PlayerConfirmation> UpdatePlayerState(this EventActivityBinder<MatchBookingState, PlayerConfirmation> binder, ILogger<MatchBookingStateMachine> logger) =>
+            binder.Then(context => context.Saga.SetPlayerStatus(context.Message.Player, context.Message.Available, logger))
                 .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId}));
 
-        public static MatchBookingState SetPlayerStatus(this MatchBookingState state, string player, bool available)
+        public static MatchBookingState SetPlayerStatus(this MatchBookingState state, string player, bool available, ILogger<MatchBookingStateMachine> logger)
         {
+            logger.LogInformation("Setting {PLAYER} status to {STATUS} in version {VERSION}", player, available, state.Version);
             switch(player)
             {
                 case "Player One":
