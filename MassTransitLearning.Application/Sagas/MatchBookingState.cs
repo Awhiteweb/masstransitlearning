@@ -1,6 +1,4 @@
 ﻿using MassTransit;
-using MassTransitLearning.Application.Consumers;
-using MassTransitLearning.Application.Events;
 
 namespace MassTransitLearning.Application.Sagas
 {
@@ -30,32 +28,5 @@ namespace MassTransitLearning.Application.Sagas
             && PlayerFourResponse.HasValue && PlayerFourResponse.Value
             && PlayerFiveResponse.HasValue && PlayerFiveResponse.Value;
         #endregion
-    }
-
-    public class MatchBookingStateSagaDefinition : SagaDefinition<MatchBookingState>
-    {
-        const int ConcurrencyLimit = 5;
-        public MatchBookingStateSagaDefinition()
-        {
-            Endpoint(e => e.ConcurrentMessageLimit = 5);
-        }
-
-        protected override void ConfigureSaga(IReceiveEndpointConfigurator endpointConfigurator, ISagaConfigurator<MatchBookingState> sagaConfigurator, IRegistrationContext context)
-        {
-            endpointConfigurator.UseInMemoryOutbox(context);
-            endpointConfigurator.UseMessageRetry(r =>
-            {
-                r.Interval(2, 1000);
-                r.Ignore(typeof(ManagerUnavailableException));
-                r.Ignore(typeof(PlayerUnavailableException));
-            });
-            var partition = endpointConfigurator.CreatePartitioner(ConcurrencyLimit);
-            
-            sagaConfigurator.Message<PlayerOneResponse>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
-            sagaConfigurator.Message<PlayerTwoResponse>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
-            sagaConfigurator.Message<PlayerThreeResponse>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
-            sagaConfigurator.Message<PlayerFourResponse>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
-            sagaConfigurator.Message<PlayerFiveResponse>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
-        }
     }
 }
