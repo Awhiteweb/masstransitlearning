@@ -21,9 +21,7 @@ namespace MassTransitLearning.Application.Consumers
         {
             logger.LogInformation("Checking if player two is available, {CTX}", context.Message.CorrelationId);
             await PlayerAssistant.Wait();
-            //throw new PlayerUnavailableException(new PlayerUnavailable("Player two", context.Message.CorrelationId).ToString());
-            logger.LogInformation("Player two is available, {CTX}", context.Message.CorrelationId);
-            await context.Publish<PlayerTwoResponse>(new {context.Message.CorrelationId});
+            throw new PlayerUnavailableException(new PlayerUnavailable("Player two", context.Message.CorrelationId).ToString());
         }
     }
     public class PlayerThreeConsumer(ILogger<PlayerThreeConsumer> logger) : IConsumer<PlayerRequest>
@@ -52,9 +50,7 @@ namespace MassTransitLearning.Application.Consumers
         {
             logger.LogInformation("Checking if player five is available, {CTX}", context.Message.CorrelationId);
             await PlayerAssistant.Wait();
-            //throw new PlayerUnavailableException(new PlayerUnavailable("Player five", context.Message.CorrelationId).ToString());
-            logger.LogInformation("Player five is available, {CTX}", context.Message.CorrelationId);
-            await context.Publish<PlayerFiveResponse>(new {context.Message.CorrelationId});
+            throw new PlayerUnavailableException(new PlayerUnavailable("Player five", context.Message.CorrelationId).ToString());
         }
     }
 
