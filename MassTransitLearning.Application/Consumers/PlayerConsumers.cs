@@ -1,6 +1,7 @@
 using MassTransit;
-using Microsoft.Extensions.Logging;
 using MassTransitLearning.Application.Events;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace MassTransitLearning.Application.Consumers
 {
@@ -8,12 +9,12 @@ namespace MassTransitLearning.Application.Consumers
     {
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player one is available");
+            logger.LogInformation("Checking if player one is available, {CTX}", context.Message.CorrelationId);
             if( !await PlayerAssistant.IsPlayerAvailable() )
             {
-                throw new PlayerUnavailableException("Player one");
+                throw new PlayerUnavailableException(new PlayerUnavailable("Player one", context.Message.CorrelationId).ToString());
             }
-            logger.LogInformation("Player one is available");
+            logger.LogInformation("Player one is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerOneResponse>(new {context.Message.CorrelationId});
         }
     }
@@ -21,12 +22,12 @@ namespace MassTransitLearning.Application.Consumers
     {
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player two is available");
+            logger.LogInformation("Checking if player two is available, {CTX}", context.Message.CorrelationId);
             if( !await PlayerAssistant.IsPlayerAvailable() )
             {
-                throw new PlayerUnavailableException("Player two");
+                throw new PlayerUnavailableException(new PlayerUnavailable("Player two", context.Message.CorrelationId).ToString());
             }
-            logger.LogInformation("Player two is available");
+            logger.LogInformation("Player two is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerTwoResponse>(new {context.Message.CorrelationId});
         }
     }
@@ -34,12 +35,12 @@ namespace MassTransitLearning.Application.Consumers
     {
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player three is available");
+            logger.LogInformation("Checking if player three is available, {CTX}", context.Message.CorrelationId);
             if( !await PlayerAssistant.IsPlayerAvailable() )
             {
-                throw new PlayerUnavailableException("Player three");
+                throw new PlayerUnavailableException(new PlayerUnavailable("Player three", context.Message.CorrelationId).ToString());
             }
-            logger.LogInformation("Player three is available");
+            logger.LogInformation("Player three is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerThreeResponse>(new {context.Message.CorrelationId});
         }
     }
@@ -47,12 +48,12 @@ namespace MassTransitLearning.Application.Consumers
     {
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player four is available");
+            logger.LogInformation("Checking if player four is available, {CTX}", context.Message.CorrelationId);
             if( !await PlayerAssistant.IsPlayerAvailable() )
             {
-                throw new PlayerUnavailableException("Player four");
+                throw new PlayerUnavailableException(new PlayerUnavailable("Player four", context.Message.CorrelationId).ToString());
             }
-            logger.LogInformation("Player four is available");
+            logger.LogInformation("Player four is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerFourResponse>(new {context.Message.CorrelationId});
         }
     }
@@ -60,25 +61,30 @@ namespace MassTransitLearning.Application.Consumers
     {
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player five is available");
+            logger.LogInformation("Checking if player five is available, {CTX}", context.Message.CorrelationId);
             if( !await PlayerAssistant.IsPlayerAvailable() )
             {
-                throw new PlayerUnavailableException("Player five");
+                throw new PlayerUnavailableException(new PlayerUnavailable("Player five", context.Message.CorrelationId).ToString());
             }
-            logger.LogInformation("Player five is available");
+            logger.LogInformation("Player five is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerFiveResponse>(new {context.Message.CorrelationId});
         }
     }
 
-    public class PlayerUnavailableException(string player) : Exception( $"{player} is unavailable") { }
+    public class PlayerUnavailableException(string message) : Exception(message) { }
+
+    public record PlayerUnavailable(string Player, Guid CorrelationId)
+    {
+        public override string ToString() => JsonSerializer.Serialize(this);
+    }
 
     public static class PlayerAssistant
     {
         public static async Task<bool> IsPlayerAvailable() 
         {
             var wait = (int)Math.Round(1000 * Random.Shared.NextSingle());
-            await Task.Delay( wait );
-            return Random.Shared.NextSingle() < 0.2;
+            await Task.Delay(wait);
+            return Random.Shared.NextSingle() > 0.2;
         }
     }
 }

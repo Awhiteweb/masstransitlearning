@@ -2,21 +2,80 @@ using MassTransit;
 
 namespace MassTransitLearning.Application.Events
 {
-    public record MatchRequest(Guid CorrelationId, DateTime MatchDate, string From) : CorrelatedBy<Guid>;
+    public class MatchRequest : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+        public DateTime MatchDate { get; init; }
+        public required string From { get; init; }
+    }
 
-    public record TeamNotification(Guid CorrelationId, string Message) : CorrelatedBy<Guid>;
+    public class TeamNotification : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+        public required string Message { get; init; }
+    }
 
-    public record ManagerRequest(Guid CorrelationId, DateTime MatchDate) : CorrelatedBy<Guid>;
-    public record ManagerResponse(Guid CorrelationId) : CorrelatedBy<Guid>;
-    public record ManagerAssistantRequest(Guid CorrelationId, DateTime MatchDate) : CorrelatedBy<Guid>;
-    public record ManagerAssistantResponse(Guid CorrelationId) : CorrelatedBy<Guid>;
+    #region Managers
+    public class ManagerRequest : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+        public DateTime MatchDate { get; init; }
+    }
+    public class ManagerResponse : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+    }
+    public class ManagerAssistantRequest : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+        public DateTime MatchDate { get; init; }
+    }
+    public class ManagerAssistantResponse : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+    }
+    #endregion
 
-    public record PlayerRequest(Guid CorrelationId, DateTime MatchDate) : CorrelatedBy<Guid>;
-    public record PlayerOneResponse(Guid CorrelationId) : CorrelatedBy<Guid>;
-    public record PlayerTwoResponse(Guid CorrelationId) : CorrelatedBy<Guid>;
-    public record PlayerThreeResponse(Guid CorrelationId) : CorrelatedBy<Guid>;
-    public record PlayerFourResponse(Guid CorrelationId) : CorrelatedBy<Guid>;
-    public record PlayerFiveResponse(Guid CorrelationId) : CorrelatedBy<Guid>;
+    #region Players
+    public class PlayerRequest : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+        public DateTime MatchDate { get; init; }
+    }
+    public class PlayerOneResponse : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+    }
+    public class PlayerTwoResponse : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+    }
+    public class PlayerThreeResponse : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+    }
+    public class PlayerFourResponse : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+    }
+    public class PlayerFiveResponse : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+    }
+    public class PlayerResponse : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+    }
+    public class PlayerResponsesCompleted : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+    }
+    #endregion
 
-    public record MatchConfirmation(Guid CorrelationId, DateTime MatchDate, bool Available) : CorrelatedBy<Guid>;
+    public class MatchConfirmation : CorrelatedBy<Guid>
+    {
+        public Guid CorrelationId { get; init; }
+        public DateTime MatchDate { get; init; }
+        public bool Available { get; init; }
+    }
 }

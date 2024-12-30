@@ -51,7 +51,12 @@ app.MapGet("/weatherforecast", () =>
 .WithOpenApi();
 
 app.MapPost("/book", async (MatchBooking booking, IBus bus) => {
-    await bus.Publish( new MatchRequest(Guid.NewGuid(), booking.MatchDate, booking.From));
+    await bus.Publish(new MatchRequest 
+    { 
+        CorrelationId = Guid.NewGuid(), 
+        MatchDate = booking.MatchDate, 
+        From = booking.From 
+    });
     return "booking request submitted";
 })
 .WithName("Match Booking")

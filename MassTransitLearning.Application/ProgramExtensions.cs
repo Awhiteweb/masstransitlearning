@@ -1,8 +1,7 @@
-using System.Reflection;
 using MassTransit;
-using Microsoft.Extensions.DependencyInjection;
-using MassTransitLearning.Application.Consumers;
 using MassTransitLearning.Application.Sagas;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace MassTransitLearning.Application
 {
@@ -30,12 +29,8 @@ namespace MassTransitLearning.Application
                         h.Username("user");
                         h.Password("bitnami");
                     });
-                    cfg.ConfigureEndpoints(ctx);
-                    // cfg.UseMessageRetry(r => {
-                    //     r.Interval(5, 1000);
-                    //     r.Ignore(typeof(PlayerUnavailableException));
-                    // });
-                });
+                    cfg.ConfigureEndpoints(ctx);            
+                } );
             });
         }
     }
