@@ -16,10 +16,6 @@ namespace MassTransitLearning.Application.Sagas
 
         public Event<PlayerResponsesCompleted>? PlayerResponsesCompleted { get; private set; }
         public Event<MatchRequest>? MatchRequest { get; private set; }
-        public Event<Fault<ManagerRequest>>? ManagerRequestFault { get; private set; }
-        public Event<ManagerResponse>? ManagerResponse { get; private set; }
-        public Event<ManagerAssistantResponse>? ManagerAssistantResponse { get; private set; }
-        public Event<Fault<ManagerAssistantRequest>>? ManagerAssistantRequestFault { get; private set; }
         public Event<PlayerOneResponse>? PlayerOneResponse { get; private set; }
         public Event<PlayerTwoResponse>? PlayerTwoResponse { get; private set; }
         public Event<PlayerThreeResponse>? PlayerThreeResponse { get; private set; }
@@ -48,7 +44,7 @@ namespace MassTransitLearning.Application.Sagas
                 When(MatchRequest)
                     .Then(context => logger.LogInformation("A match booking has been registered with the state machine, {CTX}", context.Saga.CorrelationId))
                     .TransitionTo(MatchRequested)
-                    .PublishAsync(context => context.Init<ManagerRequest>( new
+                    .PublishAsync(context => context.Init<PlayerRequest>(new
                     {
                         context.Saga.CorrelationId,
                         MatchDate = context.Saga.MatchDate!.Value
@@ -56,21 +52,6 @@ namespace MassTransitLearning.Application.Sagas
                 );
 
             During(MatchRequested,
-                When(ManagerResponse)
-                    .PublishAsync(context => context.Init<ManagerAssistantRequest>(new
-                    {
-                        context.Saga.CorrelationId,
-                        MatchDate = context.Saga.MatchDate!.Value
-                    })),
-                When(ManagerAssistantResponse)
-                    .TransitionTo(ConfirmingTeam)
-                    .PublishAsync(context => context.Init<PlayerRequest>(new
-                    {
-                        context.Saga.CorrelationId,
-                        MatchDate = context.Saga.MatchDate!.Value,
-                    })));
-
-            During(ConfirmingTeam,
                 When(PlayerOneResponse).ConfirmPlayer("Player One"),
                 When(PlayerTwoResponse).ConfirmPlayer("Player Two"),
                 When(PlayerThreeResponse).ConfirmPlayer("Player Three"),
@@ -98,8 +79,6 @@ namespace MassTransitLearning.Application.Sagas
                     .Finalize());
 
             DuringAny(
-                When(ManagerRequestFault).TransitionTo(ManagersUnavailable),
-                When(ManagerAssistantRequestFault).TransitionTo(ManagersUnavailable),
                 When(PlayerRequestFault)
                     .Then(context => context.Saga.SetPlayerStatus( context.Message.GetPlayerUnavailableException().Player, false))
                     .PublishAsync(context => context.Init<TeamNotification>(new

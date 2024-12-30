@@ -10,10 +10,7 @@ namespace MassTransitLearning.Application.Consumers
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
             logger.LogInformation("Checking if player one is available, {CTX}", context.Message.CorrelationId);
-            if( !await PlayerAssistant.IsPlayerAvailable() )
-            {
-                throw new PlayerUnavailableException(new PlayerUnavailable("Player one", context.Message.CorrelationId).ToString());
-            }
+            await PlayerAssistant.Wait();
             logger.LogInformation("Player one is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerOneResponse>(new {context.Message.CorrelationId});
         }
@@ -23,10 +20,8 @@ namespace MassTransitLearning.Application.Consumers
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
             logger.LogInformation("Checking if player two is available, {CTX}", context.Message.CorrelationId);
-            if( !await PlayerAssistant.IsPlayerAvailable() )
-            {
-                throw new PlayerUnavailableException(new PlayerUnavailable("Player two", context.Message.CorrelationId).ToString());
-            }
+            await PlayerAssistant.Wait();
+            //throw new PlayerUnavailableException(new PlayerUnavailable("Player two", context.Message.CorrelationId).ToString());
             logger.LogInformation("Player two is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerTwoResponse>(new {context.Message.CorrelationId});
         }
@@ -36,10 +31,7 @@ namespace MassTransitLearning.Application.Consumers
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
             logger.LogInformation("Checking if player three is available, {CTX}", context.Message.CorrelationId);
-            if( !await PlayerAssistant.IsPlayerAvailable() )
-            {
-                throw new PlayerUnavailableException(new PlayerUnavailable("Player three", context.Message.CorrelationId).ToString());
-            }
+            await PlayerAssistant.Wait();
             logger.LogInformation("Player three is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerThreeResponse>(new {context.Message.CorrelationId});
         }
@@ -49,10 +41,7 @@ namespace MassTransitLearning.Application.Consumers
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
             logger.LogInformation("Checking if player four is available, {CTX}", context.Message.CorrelationId);
-            if( !await PlayerAssistant.IsPlayerAvailable() )
-            {
-                throw new PlayerUnavailableException(new PlayerUnavailable("Player four", context.Message.CorrelationId).ToString());
-            }
+            await PlayerAssistant.Wait();
             logger.LogInformation("Player four is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerFourResponse>(new {context.Message.CorrelationId});
         }
@@ -62,10 +51,8 @@ namespace MassTransitLearning.Application.Consumers
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
             logger.LogInformation("Checking if player five is available, {CTX}", context.Message.CorrelationId);
-            if( !await PlayerAssistant.IsPlayerAvailable() )
-            {
-                throw new PlayerUnavailableException(new PlayerUnavailable("Player five", context.Message.CorrelationId).ToString());
-            }
+            await PlayerAssistant.Wait();
+            //throw new PlayerUnavailableException(new PlayerUnavailable("Player five", context.Message.CorrelationId).ToString());
             logger.LogInformation("Player five is available, {CTX}", context.Message.CorrelationId);
             await context.Publish<PlayerFiveResponse>(new {context.Message.CorrelationId});
         }
@@ -80,11 +67,10 @@ namespace MassTransitLearning.Application.Consumers
 
     public static class PlayerAssistant
     {
-        public static async Task<bool> IsPlayerAvailable() 
+        public static async Task Wait()
         {
             var wait = (int)Math.Round(1000 * Random.Shared.NextSingle());
             await Task.Delay(wait);
-            return Random.Shared.NextSingle() > 0.2;
         }
     }
 }

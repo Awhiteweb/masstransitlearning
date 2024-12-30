@@ -45,8 +45,7 @@ namespace MassTransitLearning.Application.Sagas
             endpointConfigurator.UseInMemoryOutbox(context);
             endpointConfigurator.UseMessageRetry(r =>
             {
-                r.Interval(2, 1000);
-                r.Ignore(typeof(ManagerUnavailableException));
+                r.Interval(5, 1000);
                 r.Ignore(typeof(PlayerUnavailableException));
             });
             var partition = endpointConfigurator.CreatePartitioner(ConcurrencyLimit);
