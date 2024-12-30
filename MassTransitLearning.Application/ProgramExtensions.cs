@@ -16,7 +16,7 @@ namespace MassTransitLearning.Application
                 config.AddSagaStateMachine<MatchBookingStateMachine, MatchBookingState>()
                     .MongoDbRepository(r =>
                     {
-                        r.Connection = "mongodb://root:password@localhost:27017/";
+                        r.Connection = "mongodb://root:password@mongo/";
                         r.DatabaseName = "matchdb";
                     });
                 config.AddSagas(assemblies);
@@ -25,7 +25,7 @@ namespace MassTransitLearning.Application
 
                 config.UsingRabbitMq((ctx, cfg) =>
                 {
-                    cfg.Host("localhost", "/", h =>
+                    cfg.Host("rabbitmq", "/", h =>
                     {
                         h.Username("user");
                         h.Password("bitnami");
