@@ -50,6 +50,7 @@ namespace MassTransitLearning.Application.Sagas
             });
             var partition = endpointConfigurator.CreatePartitioner(ConcurrencyLimit);
             
+            sagaConfigurator.Message<PlayerResponse>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
             sagaConfigurator.Message<PlayerOneResponse>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
             sagaConfigurator.Message<PlayerTwoResponse>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
             sagaConfigurator.Message<PlayerThreeResponse>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));

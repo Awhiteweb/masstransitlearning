@@ -80,7 +80,7 @@ namespace MassTransitLearning.Application.Sagas
 
             DuringAny(
                 When(PlayerRequestFault)
-                    .Then(context => context.Saga.SetPlayerStatus( context.Message.GetPlayerUnavailableException().Player, false))
+                    .Then(context => context.Saga.SetPlayerStatus(context.Message.GetPlayerUnavailableException().Player, false))
                     .PublishAsync(context => context.Init<TeamNotification>(new
                     {
                         context.Saga.CorrelationId,
@@ -93,7 +93,7 @@ namespace MassTransitLearning.Application.Sagas
     public static class SagaExtensions
     {
         public static EventActivityBinder<MatchBookingState, TEvent> ConfirmPlayer<TEvent>(this EventActivityBinder<MatchBookingState, TEvent> binder, string player) where TEvent : class =>
-            binder.Then(context => context.Saga.SetPlayerStatus( player, true))
+            binder.Then(context => context.Saga.SetPlayerStatus(player, true))
                 .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId}));
 
         public static MatchBookingState SetPlayerStatus(this MatchBookingState state, string player, bool available)
