@@ -1,4 +1,5 @@
 using MassTransit;
+using MassTransitLearning.Application.Dtos;
 using MassTransitLearning.Application.Events;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -7,50 +8,55 @@ namespace MassTransitLearning.Application.Consumers
 {
     public class PlayerOneConsumer(ILogger<PlayerOneConsumer> logger) : IConsumer<PlayerRequest>
     {
+        public static readonly string _player = Players.PlayerOne;
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player one is available, {CTX}", context.Message.CorrelationId);
+            logger.LogInformation("Checking if {PLAYER} is available, {CTX}", _player, context.Message.CorrelationId);
             await PlayerAssistant.Wait();
-            logger.LogInformation("Player one is available, {CTX}", context.Message.CorrelationId);
+            logger.LogInformation("{PLAYER} is available, {CTX}", _player, context.Message.CorrelationId);
             await context.Publish<PlayerOneResponse>(new {context.Message.CorrelationId});
         }
     }
     public class PlayerTwoConsumer(ILogger<PlayerTwoConsumer> logger) : IConsumer<PlayerRequest>
     {
+        public static readonly string _player = Players.PlayerTwo;
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player two is available, {CTX}", context.Message.CorrelationId);
+            logger.LogInformation("Checking if {PLAYER} is available, {CTX}", _player, context.Message.CorrelationId);
             await PlayerAssistant.Wait();
-            throw new PlayerUnavailableException(new PlayerUnavailable("Player two", context.Message.CorrelationId).ToString());
+            throw new PlayerUnavailableException(new PlayerUnavailable(_player, context.Message.CorrelationId).ToString());
         }
     }
     public class PlayerThreeConsumer(ILogger<PlayerThreeConsumer> logger) : IConsumer<PlayerRequest>
     {
+        public static readonly string _player = Players.PlayerThree;
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player three is available, {CTX}", context.Message.CorrelationId);
+            logger.LogInformation("Checking if {PLAYER} is available, {CTX}", _player, context.Message.CorrelationId);
             await PlayerAssistant.Wait();
-            logger.LogInformation("Player three is available, {CTX}", context.Message.CorrelationId);
+            logger.LogInformation("{PLAYER} is available, {CTX}", _player, context.Message.CorrelationId);
             await context.Publish<PlayerThreeResponse>(new {context.Message.CorrelationId});
         }
     }
     public class PlayerFourConsumer(ILogger<PlayerFourConsumer> logger) : IConsumer<PlayerRequest>
     {
+        public static readonly string _player = Players.PlayerFour;
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player four is available, {CTX}", context.Message.CorrelationId);
+            logger.LogInformation("Checking if {PLAYER} is available, {CTX}", _player, context.Message.CorrelationId);
             await PlayerAssistant.Wait();
-            logger.LogInformation("Player four is available, {CTX}", context.Message.CorrelationId);
+            logger.LogInformation("{PLAYER} is available, {CTX}", _player, context.Message.CorrelationId);
             await context.Publish<PlayerFourResponse>(new {context.Message.CorrelationId});
         }
     }
     public class PlayerFiveConsumer(ILogger<PlayerFiveConsumer> logger) : IConsumer<PlayerRequest>
     {
+        public static readonly string _player = Players.PlayerFive;
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
-            logger.LogInformation("Checking if player five is available, {CTX}", context.Message.CorrelationId);
+            logger.LogInformation("Checking if {PLAYER} is available, {CTX}", _player, context.Message.CorrelationId);
             await PlayerAssistant.Wait();
-            throw new PlayerUnavailableException(new PlayerUnavailable("Player five", context.Message.CorrelationId).ToString());
+            throw new PlayerUnavailableException(new PlayerUnavailable(_player, context.Message.CorrelationId).ToString());
         }
     }
 
