@@ -9,6 +9,7 @@ services:
       - ASPNETCORE_HTTPS_PORTS=8081
       - ASPNETCORE_Kestrel__Certificates__Default__Password=localpassword
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://aspire:18889
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -47,3 +48,11 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
+  
+  aspire:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard
+    container_name: aspire
+    ports:
+      - "18888:18888"
+    environment:
+      - DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS=true
