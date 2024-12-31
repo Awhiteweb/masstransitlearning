@@ -55,7 +55,8 @@ namespace MassTransitLearning.Application.Consumers
         public async Task Consume(ConsumeContext<PlayerRequest> context)
         {
             logger.LogInformation("Checking if {PLAYER} is available, {CTX}", _player, context.Message.CorrelationId);
-            await PlayerAssistant.Wait();
+            var wait = (int)Math.Round(10000 * Random.Shared.NextSingle());
+            await Task.Delay(wait);
             throw new PlayerUnavailableException(new PlayerUnavailable(_player, context.Message.CorrelationId).ToString());
         }
     }

@@ -59,6 +59,7 @@ namespace MassTransitLearning.Application.Sagas
                 When(PlayerFourResponse).ConfirmPlayer(Players.PlayerFour),
                 When(PlayerFiveResponse).ConfirmPlayer(Players.PlayerFive),
                 When(PlayerResponse)
+                    .Then(context => logger.LogInformation("Received {PLAYER} response", context.Message.Player))
                     .If(
                         context => context.Saga.HaveAllPlayersResponded,
                         context => context.IfElse(
@@ -85,9 +86,9 @@ namespace MassTransitLearning.Application.Sagas
                     .PublishAsync(context => context.Init<TeamNotification>(new
                     {
                         context.Saga.CorrelationId,
-                        Message = "A player is unavailable"
+                        Message = $"{context.Message.GetPlayerUnavailableException().Player} is unavailable"
                     }))
-                    .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId})));
+                    .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId, context.Message.GetPlayerUnavailableException().Player})));
         }
     }
 
@@ -95,7 +96,7 @@ namespace MassTransitLearning.Application.Sagas
     {
         public static EventActivityBinder<MatchBookingState, TEvent> ConfirmPlayer<TEvent>(this EventActivityBinder<MatchBookingState, TEvent> binder, string player) where TEvent : class =>
             binder.Then(context => context.Saga.SetPlayerStatus(player, true))
-                .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId}));
+                .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId, Player = player}));
 
         public static MatchBookingState SetPlayerStatus(this MatchBookingState state, string player, bool available)
         {
