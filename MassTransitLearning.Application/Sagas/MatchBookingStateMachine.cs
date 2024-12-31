@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using MassTransitLearning.Application.Consumers;
+using MassTransitLearning.Application.Dtos;
 using MassTransitLearning.Application.Events;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -52,11 +53,11 @@ namespace MassTransitLearning.Application.Sagas
                 );
 
             During(MatchRequested,
-                When(PlayerOneResponse).ConfirmPlayer("Player One"),
-                When(PlayerTwoResponse).ConfirmPlayer("Player Two"),
-                When(PlayerThreeResponse).ConfirmPlayer("Player Three"),
-                When(PlayerFourResponse).ConfirmPlayer("Player Four"),
-                When(PlayerFiveResponse).ConfirmPlayer("Player Five"),
+                When(PlayerOneResponse).ConfirmPlayer(Players.PlayerOne),
+                When(PlayerTwoResponse).ConfirmPlayer(Players.PlayerTwo),
+                When(PlayerThreeResponse).ConfirmPlayer(Players.PlayerThree),
+                When(PlayerFourResponse).ConfirmPlayer(Players.PlayerFour),
+                When(PlayerFiveResponse).ConfirmPlayer(Players.PlayerFive),
                 When(PlayerResponse)
                     .If(
                         context => context.Saga.HaveAllPlayersResponded,
@@ -100,19 +101,19 @@ namespace MassTransitLearning.Application.Sagas
         {
             switch(player)
             {
-                case "Player One":
+                case Players.PlayerOne:
                     state.PlayerOneResponse = available;
                     break;
-                case "Player Two":
+                case Players.PlayerTwo:
                     state.PlayerTwoResponse = available;
                     break;
-                case "Player Three":
+                case Players.PlayerThree:
                     state.PlayerThreeResponse = available;
                     break;
-                case "Player Four":
+                case Players.PlayerFour:
                     state.PlayerFourResponse = available;
                     break;
-                case "Player Five":
+                case Players.PlayerFive:
                     state.PlayerFiveResponse = available;
                     break;
                 default:
