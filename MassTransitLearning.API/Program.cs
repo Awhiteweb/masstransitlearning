@@ -1,6 +1,9 @@
 using MassTransit;
 using MassTransitLearning.Application;
 using MassTransitLearning.Application.Events;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -12,6 +15,15 @@ Log.Information("Starting up");
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSerilog();
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r => 
+        r.AddService("MassTransitLearning", serviceVersion: "1", serviceInstanceId: Environment.MachineName))
+    .WithTracing(tracing => {
+        tracing.AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName);
+        tracing.AddAspNetCoreInstrumentation();
+        tracing.AddHttpClientInstrumentation();
+    })
+    .UseOtlpExporter();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
