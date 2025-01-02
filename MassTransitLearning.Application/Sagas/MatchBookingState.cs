@@ -40,7 +40,10 @@ namespace MassTransitLearning.Application.Sagas
             Endpoint(e => e.ConcurrentMessageLimit = ConcurrencyLimit);
         }
 
-        protected override void ConfigureSaga(IReceiveEndpointConfigurator endpointConfigurator, ISagaConfigurator<MatchBookingState> sagaConfigurator, IRegistrationContext context)
+        protected override void ConfigureSaga(
+            IReceiveEndpointConfigurator endpointConfigurator, 
+            ISagaConfigurator<MatchBookingState> sagaConfigurator, 
+            IRegistrationContext context)
         {
             endpointConfigurator.UseInMemoryOutbox(context);
             endpointConfigurator.UseMessageRetry(r =>

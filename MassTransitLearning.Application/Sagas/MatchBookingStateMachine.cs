@@ -22,29 +22,23 @@ namespace MassTransitLearning.Application.Sagas
         public Event<PlayerThreeResponse>? PlayerThreeResponse { get; private set; }
         public Event<PlayerFourResponse>? PlayerFourResponse { get; private set; }
         public Event<PlayerFiveResponse>? PlayerFiveResponse { get; private set; }
-        public Event<PlayerConfirmation>? PlayerConfirmation { get; private set; }
         public Event<PlayerResponse>? PlayerResponse { get; private set; }
         public Event<Fault<PlayerRequest>>? PlayerRequestFault { get; private set; }
 
 
         public MatchBookingStateMachine(ILogger<MatchBookingStateMachine> logger)
         {
-            Event(() => MatchRequest, e => 
-            {
-                e.InsertOnInitial = true;
-                e.SetSagaFactory(context => new MatchBookingState()
-                {
-                    CorrelationId = context.Message.CorrelationId,
-                    MatchDate = context.Message.MatchDate,
-                    From = context.Message.From,
-                });
-            });
-
             InstanceState(x => x.CurrentState);
 
             Initially(
                 When(MatchRequest)
-                    .Then(context => logger.LogInformation("A match booking has been registered with the state machine, {CTX}", context.Saga.CorrelationId))
+                    .Then(context => 
+                    {
+                        logger.LogInformation("A match booking has been registered with the state machine, {CTX}", context.Saga.CorrelationId);
+                        context.Saga.CorrelationId = context.Message.CorrelationId;
+                        context.Saga.MatchDate = context.Message.MatchDate;
+                        context.Saga.From = context.Message.From;
+                    })
                     .TransitionTo(MatchRequested)
                     .PublishAsync(context => context.Init<PlayerRequest>(new
                     {
@@ -59,8 +53,8 @@ namespace MassTransitLearning.Application.Sagas
                 When(PlayerThreeResponse).ConfirmPlayer(Players.PlayerThree),
                 When(PlayerFourResponse).ConfirmPlayer(Players.PlayerFour),
                 When(PlayerFiveResponse).ConfirmPlayer(Players.PlayerFive),
-                When(PlayerConfirmation).UpdatePlayerState(logger),
                 When(PlayerResponse)
+                    .Then(context => logger.LogInformation("Received {PLAYER} response", context.Message.Player))
                     .If(
                         context => context.Saga.HaveAllPlayersResponded,
                         context => context.IfElse(
@@ -83,49 +77,42 @@ namespace MassTransitLearning.Application.Sagas
 
             DuringAny(
                 When(PlayerRequestFault)
-                    .PublishAsync(context => context.Init<PlayerConfirmation>(new
-                    {
-                        context.Saga.CorrelationId,
-                        context.Message.GetPlayerUnavailableException().Player,
-                        Available = false
-                    })));
+                    .Then(context => context.Saga.SetPlayerStatus(context.Message.GetPlayerUnavailableException().Player, true))
+                    .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId, context.Message.GetPlayerUnavailableException().Player})));
         }
     }
 
     public static class SagaExtensions
     {
-        public static EventActivityBinder<MatchBookingState, TEvent> ConfirmPlayer<TEvent>(this EventActivityBinder<MatchBookingState, TEvent> binder, string player) where TEvent : class =>
-            binder.PublishAsync(context => context.Init<PlayerConfirmation>(new 
+        public static EventActivityBinder<MatchBookingState, TEvent> ConfirmPlayer<TEvent>(this EventActivityBinder<MatchBookingState, TEvent> binder, string player) 
+        where TEvent : class =>
+            binder.Then(context => context.Saga.SetPlayerStatus(player, true))
+                .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId, Player = player}));
+
+        public static MatchBookingState SetPlayerStatus(this MatchBookingState state, string player, bool available)
+        {
+            switch(player)
             {
-                context.Saga.CorrelationId,
-                Player = player,
-                Available = true
-            }));
-        public static EventActivityBinder<MatchBookingState, PlayerConfirmation> UpdatePlayerState(this EventActivityBinder<MatchBookingState, PlayerConfirmation> binder, ILogger<MatchBookingStateMachine> logger) =>
-            binder.Then(context =>
-            {
-                // logger.LogInformation("Setting {PLAYER} status to {STATUS} in version {VERSION}", context.Message.Player, context.Message.Available, context.Saga.Version);
-                switch(context.Message.Player)
-                {
-                    case Players.PlayerOne:
-                        context.Saga.PlayerOneResponse = context.Message.Available;
-                        break;
-                    case Players.PlayerTwo:
-                        context.Saga.PlayerTwoResponse = context.Message.Available;
-                        break;
-                    case Players.PlayerThree:
-                        context.Saga.PlayerThreeResponse = context.Message.Available;
-                        break;
-                    case Players.PlayerFour:
-                        context.Saga.PlayerFourResponse = context.Message.Available;
-                        break;
-                    case Players.PlayerFive:
-                        context.Saga.PlayerFiveResponse = context.Message.Available;
-                        break;
-                    default:
-                        break;
-                }
-            }).PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId}));
+                case Players.PlayerOne:
+                    state.PlayerOneResponse = available;
+                    break;
+                case Players.PlayerTwo:
+                    state.PlayerTwoResponse = available;
+                    break;
+                case Players.PlayerThree:
+                    state.PlayerThreeResponse = available;
+                    break;
+                case Players.PlayerFour:
+                    state.PlayerFourResponse = available;
+                    break;
+                case Players.PlayerFive:
+                    state.PlayerFiveResponse = available;
+                    break;
+                default:
+                    break;
+            }
+            return state;
+        }
 
         public static PlayerUnavailable GetPlayerUnavailableException(this Fault<PlayerRequest> fault)
         {
