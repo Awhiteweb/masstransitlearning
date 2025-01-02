@@ -28,22 +28,17 @@ namespace MassTransitLearning.Application.Sagas
 
         public MatchBookingStateMachine(ILogger<MatchBookingStateMachine> logger)
         {
-            Event(() => MatchRequest, e => 
-            {
-                e.InsertOnInitial = true;
-                e.SetSagaFactory(context => new MatchBookingState()
-                {
-                    CorrelationId = context.Message.CorrelationId,
-                    MatchDate = context.Message.MatchDate,
-                    From = context.Message.From,
-                });
-            });
-
             InstanceState(x => x.CurrentState);
 
             Initially(
                 When(MatchRequest)
-                    .Then(context => logger.LogInformation("A match booking has been registered with the state machine, {CTX}", context.Saga.CorrelationId))
+                    .Then(context => 
+                    {
+                        logger.LogInformation("A match booking has been registered with the state machine, {CTX}", context.Saga.CorrelationId);
+                        context.Saga.CorrelationId = context.Message.CorrelationId;
+                        context.Saga.MatchDate = context.Message.MatchDate;
+                        context.Saga.From = context.Message.From;
+                    })
                     .TransitionTo(MatchRequested)
                     .PublishAsync(context => context.Init<PlayerRequest>(new
                     {
@@ -94,7 +89,8 @@ namespace MassTransitLearning.Application.Sagas
 
     public static class SagaExtensions
     {
-        public static EventActivityBinder<MatchBookingState, TEvent> ConfirmPlayer<TEvent>(this EventActivityBinder<MatchBookingState, TEvent> binder, string player) where TEvent : class =>
+        public static EventActivityBinder<MatchBookingState, TEvent> ConfirmPlayer<TEvent>(this EventActivityBinder<MatchBookingState, TEvent> binder, string player) 
+        where TEvent : class =>
             binder.Then(context => context.Saga.SetPlayerStatus(player, true))
                 .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId, Player = player}));
 

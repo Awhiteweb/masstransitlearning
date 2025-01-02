@@ -8,9 +8,15 @@ trigger() {
         -k
 }
 
-trigger $(date +"%FT%T")
+trigger "2024-01-02T10:10:00"
 echo ""
-# trigger $(date -d "tomorrow" +"%FT%T")
-# echo ""
-# trigger $(date -d "next week" +"%FT%T")
-# echo ""
+trigger "2024-01-03T10:10:00"
+echo ""
+trigger "2024-01-04T10:10:00"
+echo ""
+trigger "2024-01-05T10:10:00"
+echo ""
+trigger "2024-01-06T10:10:00"
+echo ""
+trigger "2024-01-07T10:10:00"
+echo ""
