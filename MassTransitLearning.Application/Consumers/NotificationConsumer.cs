@@ -14,17 +14,4 @@ namespace MassTransitLearning.Application.Consumers
             logger.LogInformation("Sent notification {MESSAGE}", context.Message.Message);
         }
     }
-    public class PlayerConfirmationConsumer(ILogger<PlayerConfirmationConsumer> logger) : IConsumer<PlayerConfirmation>
-    {
-        public async Task Consume(ConsumeContext<PlayerConfirmation> context)
-        {
-            // logger.LogInformation("Received {PLAYER} confirmation", context.Message.Player);
-            var message = $"{context.Message.Player} is {(context.Message.Available ? "available" : "unavailable")} to play";
-            await context.Publish(new TeamNotification
-            {
-                CorrelationId = context.Message.CorrelationId,
-                Message = message
-            });
-        }
-    }
 }

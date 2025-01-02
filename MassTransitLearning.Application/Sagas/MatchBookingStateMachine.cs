@@ -78,7 +78,11 @@ namespace MassTransitLearning.Application.Sagas
             DuringAny(
                 When(PlayerRequestFault)
                     .Then(context => context.Saga.SetPlayerStatus(context.Message.GetPlayerUnavailableException().Player, true))
-                    .PublishAsync(context => context.Init<PlayerResponse>(new {context.Saga.CorrelationId, context.Message.GetPlayerUnavailableException().Player})));
+                    .PublishAsync(context => context.Init<PlayerResponse>(new 
+                    {
+                        context.Saga.CorrelationId, 
+                        context.Message.GetPlayerUnavailableException().Player
+                    })));
         }
     }
 
