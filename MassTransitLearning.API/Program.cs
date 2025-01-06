@@ -7,6 +7,7 @@ using OpenTelemetry.Trace;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override( "MassTransit", Serilog.Events.LogEventLevel.Error )
     .WriteTo.Console()
     .CreateLogger();
 
